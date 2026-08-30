@@ -125,7 +125,7 @@ export default function Navbar({ userName = "Ramaa Iyer", onNavigate }) {
               type="button"
               className={`nav-link${activeSection === item.id ? ' active' : ''}`}
               onClick={() => handleNavClick(item.id)}
-              aria-current={activeSection === item.id ? 'true' : undefined}
+              aria-current={activeSection === item.id ? 'location' : undefined}
             >
               {item.icon}
               {item.label}
@@ -136,7 +136,11 @@ export default function Navbar({ userName = "Ramaa Iyer", onNavigate }) {
         <div className="navbar-search">
           <label className="search-input-wrapper">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.4" stroke="#94A3B8" strokeWidth="1.5"></circle><line x1="9.4" y1="9.4" x2="12.6" y2="12.6" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round"></line></svg>
-            <input type="text" placeholder="Search records, medications, doctors…" />
+            <input
+              type="text"
+              placeholder="Search records, medications, doctors…"
+              aria-label="Search records, medications and doctors"
+            />
             <span className="search-shortcut">⌘K</span>
           </label>
         </div>

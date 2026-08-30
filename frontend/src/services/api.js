@@ -11,20 +11,27 @@ export async function fetchHealthDashboardData() {
   }
 }
 
+// React review R-06: Promise.all rejects as soon as any one request fails, so a
+// single failing endpoint blanked the timeline, calendar, documents, family and
+// emergency cards all at once. allSettled keeps every section that did load.
+async function getJSON(path) {
+  const response = await fetch(`${API_BASE_URL}${path}`);
+  if (!response.ok) throw new Error(`HTTP ${response.status} on ${path}`);
+  return response.json();
+}
+
 export async function fetchExtraDashboardData() {
-  try {
-    const [timeline, calendar, documents, family, emergency] = await Promise.all([
-      fetch(`${API_BASE_URL}/timeline`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/calendar`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/documents`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/family`).then(res => res.json()),
-      fetch(`${API_BASE_URL}/emergency`).then(res => res.json())
-    ]);
-    return { timeline, calendar, documents, family, emergency };
-  } catch (error) {
-    console.error('Failed to fetch extra data:', error);
-    return { timeline: [], calendar: [], documents: [], family: [], emergency: { contacts: [] } };
-  }
+  const paths = ['/timeline', '/calendar', '/documents', '/family', '/emergency'];
+  const results = await Promise.allSettled(paths.map(getJSON));
+
+  const fallbacks = [[], [], [], [], { contacts: [] }];
+  const [timeline, calendar, documents, family, emergency] = results.map((result, i) => {
+    if (result.status === 'fulfilled') return result.value;
+    console.error(`Failed to load ${paths[i]}:`, result.reason);
+    return fallbacks[i];
+  });
+
+  return { timeline, calendar, documents, family, emergency };
 }
 
 export async function uploadMedicalDocument(file) {
@@ -62,22 +69,28 @@ export async function deleteMedicalDocument(id) {
   }
 }
 
-export async function toggleMedicationAPI(id) {
-  const response = await fetch(`${API_BASE_URL}/medication/toggle`, {
+// React review R-03: neither helper checked response.ok, so a 400, 404 or 500
+// resolved normally and the caller treated a failure as a success. The UI then
+// showed a state the server had not accepted.
+async function postJSON(path, body) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id })
+    body: JSON.stringify(body)
   });
-  return await response.json();
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed with status ${response.status}`);
+  }
+  return data;
+}
+
+export async function toggleMedicationAPI(id) {
+  return postJSON('/medication/toggle', { id });
 }
 
 export async function toggleFocusTaskAPI(id) {
-  const response = await fetch(`${API_BASE_URL}/focus/update`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id })
-  });
-  return await response.json();
+  return postJSON('/focus/update', { id });
 }
 
 export async function sendAIBobQuery(promptText) {

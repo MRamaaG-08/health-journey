@@ -551,11 +551,22 @@ def local_inference(user_prompt, db):
               'ambulance', 'emergency contact', 'next of kin'):
         contacts = emergency.get('contacts', [])
         contact_txt = '; '.join('%s (%s)' % (c.get('name', ''), c.get('relation', '')) for c in contacts)
-        return ("Your emergency card reads: blood group %s, allergies %s, conditions %s. "
+
+        # Responsible AI review P-03: "none recorded" was indistinguishable from
+        # a clinician having confirmed there are no allergies. In an emergency
+        # that difference matters, so an empty field is stated as missing
+        # information, not as a negative finding.
+        def stated(value, label):
+            if value:
+                return "%s %s" % (label, value)
+            return ("no %s recorded — this means nothing has been entered, "
+                    "not that there are none" % label.rstrip(':').lower())
+
+        return ("Your emergency card reads: blood group %s; %s; %s. "
                 "Contacts on file — %s. This card works offline from the dashboard." % (
-                    emergency.get('bloodGroup', 'not set'),
-                    emergency.get('allergies', 'none recorded'),
-                    emergency.get('conditions', 'none recorded'),
+                    emergency.get('bloodGroup') or "not recorded",
+                    stated(emergency.get('allergies'), "allergies:"),
+                    stated(emergency.get('conditions'), "conditions:"),
                     contact_txt or 'none yet'))
 
     # --- Today / focus / habits -------------------------------------------
@@ -693,9 +704,14 @@ def local_inference(user_prompt, db):
     # --- Vitals / score ----------------------------------------------------
     if _match(p, 'vital', 'heart', 'bp', 'pressure', 'spo2', 'oxygen',
               'steps', 'score', 'how am i', 'summary', 'overview', 'how do i look'):
-        return ("Here's where you stand, %s: health score %s/100, resting heart rate %s bpm, "
-                "blood pressure %s, SpO2 %s%%, and %s steps logged today. %d document%s "
-                "and %d timeline event%s are on file." % (
+        # Responsible AI review P-01: these figures are seeded demo values, not
+        # measurements. Reporting them as a personal assessment without saying
+        # so creates a false belief about the patient's actual health status.
+        return ("Here's what your record holds, %s: health score %s/100, resting heart "
+                "rate %s bpm, blood pressure %s, SpO2 %s%%, and %s steps today. "
+                "These are sample figures in this build, not readings taken from a "
+                "device — treat them as placeholders, not as an assessment of your "
+                "health. %d document%s and %d timeline event%s are on file." % (
                     name, score, vitals.get('restingHR', 'n/a'), vitals.get('bp', 'n/a'),
                     vitals.get('spo2', 'n/a'), vitals.get('steps', 'n/a'),
                     len(docs), '' if len(docs) == 1 else 's',
@@ -927,7 +943,8 @@ def upload_document():
             "type": doc_type,
             "name": display_name,
             "storedAs": stored_as,
-            "meta": "Just now \u00b7 %s \u00b7 User Upload" % meta_size,
+            "meta": "%s \u00b7 %s \u00b7 User Upload" % (
+                datetime.datetime.now().strftime("%d %b %Y, %H:%M"), meta_size),
             "parsed": True
         }
         DB["documents"].insert(0, new_doc)
@@ -939,7 +956,7 @@ def upload_document():
             "title": "Medical Document Uploaded \u2014 %s" % display_name,
             "desc": "Catalogued by IBM Bob and linked to your health record "
                     "by name, type and date. File size: %s." % meta_size,
-            "date": "Just now",
+            "date": datetime.datetime.now().strftime("%d %b %Y, %H:%M"),
             "badge": "Newly Verified",
             "documentId": new_id
         })

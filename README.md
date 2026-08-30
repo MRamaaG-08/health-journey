@@ -1,448 +1,88 @@
-# Health Journey
+# IBM Bob — Usage Evidence
 
-A privacy-first AI health companion. Health Journey brings a person's scattered
-medical life — lab reports, prescriptions, appointments, medications and family
-health — into one dashboard, and puts an assistant called **IBM Bob** on top of
-it that explains the record in plain language.
+This folder holds the primary record of how IBM Bob was used on Health Journey.
+Each file contains the prompt that was sent, IBM Bob's response, and what the
+team actually did with it — including the cases where Bob's advice was declined
+or corrected.
 
-Built for the **IBM SkillsBuild SkillUp Hackathon (Skillathon) 2026**.
-
-> Health Journey helps people **organise and understand** their health record.
-> It does not diagnose, prescribe, or replace a clinician.
+`../IBM_Bob_Usage.md` is the narrative summary written from this material. This
+folder is the underlying source.
 
 ---
 
-## Table of contents
+## Sessions
 
-- [What it does](#what-it-does)
-- [Screens and features](#screens-and-features)
-- [How IBM Bob works](#how-ibm-bob-works)
-- [Tech stack](#tech-stack)
-- [Folder structure](#folder-structure)
-- [Installation](#installation)
-- [Environment variables](#environment-variables)
-- [Running locally](#running-locally)
-- [API reference](#api-reference)
-- [Architecture](#architecture)
-- [Privacy and safety](#privacy-and-safety)
-- [Known limitations](#known-limitations)
-- [Future enhancements](#future-enhancements)
-- [Team](#team)
-
----
-
-## What it does
-
-Managing your health means juggling appointments, prescriptions, lab panels,
-specialist visits and follow-ups — usually across paper folders, WhatsApp
-forwards and half a dozen hospital portals. Things get missed.
-
-Health Journey gives you one place for all of it:
-
-- Upload a report and it is **catalogued and placed on your timeline** in one
-  step, indexed by name, type, size and date. IBM Bob does not read the text
-  inside a PDF yet, and says so when asked.
-- Your medications and daily focus tasks **persist** — tick one, restart the
-  server, it is still ticked.
-- **IBM Bob** reads the record and answers questions about it in everyday
-  language, and prepares the questions worth asking your doctor.
-- One card holds the **emergency information** someone would need if you
-  could not speak for yourself.
-
----
-
-## Screens and features
-
-| Area | What it does |
-|---|---|
-| **Hero** | Health score, vitals, today's medications and focus tasks — all interactive and persistent |
-| **Quick Actions** | Upload a report, jump to IBM Bob, or navigate to any section. Counts read from live API data |
-| **Journey Timeline** | Chronological health history. New uploads appear here instantly |
-| **Calendar** | Upcoming appointments with doctor and specialty |
-| **IBM Bob** | Chat assistant grounded on your own record, with suggestion pills and offline fallback |
-| **Insights** | Monthly health trend and vitals summary |
-| **Recent Documents** | Your document vault, with upload and delete |
-| **Family Profiles** | Health status for the people you care for |
-| **Emergency Card** | Blood group, allergies, conditions and contacts |
-
-Everything is wrapped in a React **Error Boundary**, so a failure in one
-component never blanks the whole dashboard.
-
----
-
-## How IBM Bob works
-
-IBM Bob is the assistant built into the product. He runs on a **two-tier
-engine**, and the tier is chosen automatically at request time.
-
-### Tier 1 — IBM watsonx.ai (live model)
-
-When `IBM_API_KEY` and `IBM_PROJECT_ID` are set in `backend/.env`, the backend
-exchanges the API key for an IBM Cloud IAM bearer token (cached until shortly
-before it expires) and calls the watsonx.ai text-generation endpoint with a
-Granite model. The user's health record is serialised into the prompt so the
-model answers from that record and nothing else.
-
-### Tier 2 — Grounded local inference (offline)
-
-If no credentials are configured, or the network is down, or watsonx returns an
-error, IBM Bob falls back to a local reasoning layer that reads
-`database.json` directly and **computes** its answer: how many documents are in
-the vault, which medications are still unlogged, how much XP today's remaining
-focus tasks are worth, which family members are flagged, which lab event the
-newest upload links to.
-
-This is not a set of canned replies. Tick a medication and ask the same
-question again and the answer changes, because the numbers are read from live
-state on every request.
-
-**Which tier is running right now?**
-
-```
-GET /api/ai/status
-```
-
-```json
-{
-  "assistant": "IBM Bob",
-  "watsonxConfigured": false,
-  "activeEngine": "grounded-local-inference",
-  "fallbackAvailable": true,
-  "recordsIndexed": { "documents": 4, "timelineEvents": 5, "medications": 2, "familyProfiles": 4 }
-}
-```
-
-Every `/api/ai/chat` response also reports its `source` (`"watsonx"` or
-`"local"`), so the engine in use is never ambiguous.
-
-### Safety rules
-
-Both tiers are constrained by the same rules: answer only from the record,
-never invent a lab value or a medicine, never diagnose or prescribe, never tell
-the user to change a dose, and defer clinical judgement to their doctor. If the
-record does not contain the answer, IBM Bob says so.
-
----
-
-## Tech stack
-
-**Frontend**
-
-- React 19.2.8
-- Vite 8.2.2
-- Plain CSS with CSS custom properties — no Tailwind, no component library
-- Modular architecture: one folder per component, paired `.jsx` and `.css`
-
-**Backend**
-
-- Python 3 + Flask 3.0.3
-- flask-cors 4.0.1
-- python-dotenv 1.0.1
-- Werkzeug 3.0.3
-- requests 2.32.3
-
-**Persistence**
-
-- `backend/database.json` — a single JSON document, written on every mutation
-- `backend/uploads/` — uploaded medical documents on local disk
-
-No external database, no cloud storage, no user account. The record lives on
-the machine the backend runs on.
-
----
-
-## Folder structure
-
-```
-HealthJourney/
-├── backend/
-│   ├── app.py                  # Flask app: 12 endpoints + IBM Bob engine
-│   ├── database.json           # Local persistence (JSON)
-│   ├── requirements.txt        # Python dependencies
-│   ├── .env.example            # Template for environment variables
-│   └── uploads/                # Uploaded documents (git-ignored)
-│
-├── frontend/
-│   ├── index.html
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── .env.example
-│   ├── public/                 # favicon.svg, icons.svg
-│   └── src/
-│       ├── main.jsx
-│       ├── App.jsx
-│       ├── index.css           # Design tokens and global styles
-│       ├── services/
-│       │   └── api.js          # Every backend call lives here
-│       ├── pages/
-│       │   └── Dashboard/
-│       └── components/
-│           ├── Navbar/         ├── Hero/           ├── QuickActions/
-│           ├── JourneyTimeline/├── Calendar/       ├── AIAssistant/
-│           ├── Insights/       ├── RecentDocuments/├── FamilyMembers/
-│           ├── EmergencyCard/  ├── MedicationCard/ ├── FocusCard/
-│           ├── AppointmentCard/├── Footer/         └── ErrorBoundary/
-│
-└── docs/
-    ├── architecture.md
-    ├── API_DOCUMENTATION.md
-    ├── product_vision.md
-    ├── design_bible.md
-    ├── user_journey.md
-    └── user_personas.md
-```
-
----
-
-## Installation
-
-**Requirements:** Python 3.10 or newer, Node.js 18 or newer.
-
-```bash
-git clone https://github.com/YOUR_USERNAME/health-journey.git
-cd health-journey
-```
-
-### Backend
-
-```bash
-cd backend
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-# macOS / Linux
-source venv/bin/activate
-
-pip install -r requirements.txt
-copy .env.example .env          # Windows
-# cp .env.example .env          # macOS / Linux
-```
-
-### Frontend
-
-```bash
-cd frontend
-npm install
-```
-
-The frontend runs against `http://localhost:5000/api` by default, so no
-frontend `.env` file is required for local development.
-
----
-
-## Environment variables
-
-### `backend/.env`
-
-| Variable | Required | Default | Purpose |
+| # | File | Mode | What it produced |
 |---|---|---|---|
-| `IBM_API_KEY` | No | — | IBM Cloud API key. Without it, IBM Bob uses the local engine |
-| `IBM_PROJECT_ID` | No | — | watsonx.ai project ID |
-| `IBM_URL` | No | `https://us-south.ml.cloud.ibm.com` | watsonx.ai regional endpoint |
-| `IBM_MODEL_ID` | No | `ibm/granite-3-8b-instruct` | Granite model powering IBM Bob |
-| `ALLOWED_ORIGINS` | No | localhost 5173/4173 | Comma-separated CORS allowlist |
-| `HOST` | No | `127.0.0.1` | Network interface. Loopback only by default — set `0.0.0.0` only if you deliberately need access from another device |
-| `PORT` | No | `5000` | Flask port |
-| `FLASK_DEBUG` | No | `false` | Keep `false` for demos |
+| 01 | [`01-backend-code-review.md`](01-backend-code-review.md) | Conversational, read-only | 11 findings (F-01 to F-11) on `app.py`; 9 implemented, 2 deferred with reasons |
+| 02 | [`02-test-suite.md`](02-test-suite.md) | **Agent** | `backend/tests/test_bob_engine.py` — 80 tests across 10 classes, all passing |
+| 03 | [`03-upload-security-review.md`](03-upload-security-review.md) | Conversational, read-only | 5 findings (R-01 to R-05) on the upload endpoint; magic-byte validation, UUID storage, a controlled serve route |
+| 04 | [`04-intent-router-critique.md`](04-intent-router-critique.md) | Conversational, read-only | A scored-dispatch design for the intent router; accepted as correct, deferred deliberately |
+| 05 | [`05-architecture-review.md`](05-architecture-review.md) | Conversational, read-only | Adversarial judge review; W-1 changed the product's core privacy claim |
+| 06 | [`06-docstrings.md`](06-docstrings.md) | **Agent** | Google-style docstrings for nine functions |
+| 07 | [`07-frontend-review.md`](07-frontend-review.md) | Conversational, read-only | 9 React findings (R-01 to R-09) — re-renders, a race condition, silent HTTP failures, accessibility. All 9 implemented |
+| 08 | [`08-responsible-ai-review.md`](08-responsible-ai-review.md) | Conversational, read-only | 7 findings (P-01 to P-07) against IBM's six principles. P-01 rated Critical: a seeded score presented to a patient as a health assessment |
+| 09 | [`09-demo-readiness.md`](09-demo-readiness.md) | Conversational, read-only | 16 demo risks walked against the live sequence; found a fabricated on-screen conversation that would have contradicted the assistant live |
 
-### `frontend/.env`
-
-| Variable | Required | Default | Purpose |
-|---|---|---|---|
-| `VITE_API_URL` | No | `http://localhost:5000/api` | Backend API base URL |
-
-`.env` is git-ignored. Only `.env.example` is committed — no key ever enters
-the repository.
+`00-commit-history.txt` records the commit sequence, showing the order in which
+the work was done.
 
 ---
 
-## Running locally
+## Supporting screenshots
 
-Two terminals.
+Stored in [`../../screenshots/bob/`](../../screenshots/bob/):
 
-**Terminal 1 — backend**
-
-```bash
-cd backend
-venv\Scripts\activate
-python app.py
-```
-
-```
-==============================================================
- Health Journey — Backend API
- IBM Bob engine : Grounded local inference (watsonx key not set)
- Records loaded : 4 documents, 5 timeline events
- Debug mode    : OFF (demo safe)
- Bound to      : 127.0.0.1:5000 (this machine only)
-==============================================================
-```
-
-Flask prints a red *"This is a development server"* warning after the banner.
-That is expected and harmless for a local demo.
-
-**Terminal 2 — frontend**
-
-```bash
-cd frontend
-npm run dev
-```
-
-Open the URL Vite prints (usually `http://localhost:5173`).
-
-### Verifying persistence
-
-1. Tick a medication in the Hero card.
-2. Stop the backend (`Ctrl+C`) and start it again.
-3. Reload the dashboard — it is still ticked.
-
-The same holds for focus tasks and uploaded documents.
-
----
-
-## API reference
-
-Base URL: `http://localhost:5000/api`
-
-| Method | Endpoint | Purpose |
-|---|---|---|
-| `GET` | `/dashboard` | User, vitals, medications, appointments, focus tasks |
-| `GET` | `/timeline` | Health timeline events |
-| `GET` | `/calendar` | Upcoming appointments |
-| `GET` | `/documents` | Document vault |
-| `GET` | `/family` | Family profiles |
-| `GET` | `/emergency` | Emergency card |
-| `POST` | `/ai/chat` | Ask IBM Bob a question |
-| `GET` | `/ai/status` | Which IBM Bob engine is active |
-| `POST` | `/documents/upload` | Upload a document (multipart) |
-| `DELETE` | `/documents/<id>` | Delete a document and its timeline event |
-| `POST` | `/medication/toggle` | Toggle a medication as taken |
-| `POST` | `/focus/update` | Toggle a focus task as done |
-| `GET` | `/documents/<id>/content` | Serve an uploaded document's file |
-
-Full request and response bodies: **[docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)**
-
----
-
-## Architecture
-
-```
-┌───────────────────────────────────────────┐
-│  React 19 + Vite  (browser)               │
-│  Dashboard → 15 components                │
-│  services/api.js — single API boundary    │
-└───────────────────┬───────────────────────┘
-                    │  REST / JSON over HTTP
-                    ▼
-┌───────────────────────────────────────────┐
-│  Flask backend  (app.py)                  │
-│  12 endpoints · CORS · file upload        │
-│  IBM Bob engine (two tiers)               │
-└──────┬─────────────────────────┬──────────┘
-       │                         │
-       ▼                         ▼
-┌──────────────┐        ┌────────────────────┐
-│ database.json│        │ IBM watsonx.ai     │
-│ uploads/     │        │ (Granite) —        │
-│ local disk   │        │ optional Tier 1    │
-└──────────────┘        └────────────────────┘
-```
-
-Detail: **[docs/architecture.md](docs/architecture.md)**
-
----
-
-## Privacy and safety
-
-- **Local by default.** The record never leaves the machine unless watsonx is
-  explicitly configured, and even then only the prompt context is sent.
-- **No encryption at rest — stated plainly.** `database.json` and the uploads
-  folder are stored unencrypted on the local disk. Health Journey's privacy
-  claim is *locality* — your record stays on your device and is not sent to a
-  server, sold, or tracked — not cryptography. Encryption at rest is named in
-  Future Enhancements, and nothing in this project claims to implement it.
-- **No accounts, no tracking, no analytics.**
-- **Secrets stay out of the repo.** `.env` is git-ignored; uploaded documents
-  are git-ignored.
-- **Uploads are validated before they touch disk** — extension allowlist
-  (`pdf`, `png`, `jpg`, `jpeg`), a 20 MB cap, rejection of empty files, a
-  **magic-byte check** so a renamed executable cannot pass as a PDF, a
-  content-versus-extension match, and a dimension sanity check on PNGs.
-- **Files are stored under generated UUID names**, never the name the user
-  supplied, and are reachable only through a controlled route that resolves
-  the document id first — never by guessing a path. Deletion is confined to
-  the uploads folder, so a tampered record store cannot reach a source file.
-- **Document names are treated as untrusted data by the AI engine.** They are
-  fenced in `<untrusted>` tags in the prompt context, and IBM Bob is instructed
-  that such text is a label to read back, never an instruction to follow.
-- **CORS is restricted** to the local frontend origins rather than `*`, so a
-  page on another site cannot read the health record.
-- **Writes are atomic.** `database.json` is written to a temporary file and
-  moved into place, so an interrupted write cannot corrupt the record store,
-  and a failed write returns `500` instead of silently pretending to succeed.
-- **IBM Bob never diagnoses.** Both engines are bound by the same safety rules
-  and defer clinical judgement to a qualified professional.
-
----
-
-## Known limitations
-
-Stated plainly, because they are the honest boundary of what was built in a
-hackathon:
-
-- **No authentication.** Health Journey is designed as a single-user local
-  application: there are no accounts, and every endpoint is open to whoever can
-  reach the port. This is an accepted trade-off for a locally-run hackathon
-  build, mitigated two ways: the server binds to loopback only by default, so
-  it is not reachable from the network at all, and CORS is restricted to local
-  origins. Multi-user support would require real authentication first.
-- **Document indexing is metadata-level.** Uploads are catalogued by filename,
-  type, size and date. IBM Bob reasons about *which* documents exist, not the
-  text inside a PDF — and if you ask it for a value that would live inside a
-  report, it tells you plainly that it cannot read the file and refuses to
-  guess a number. Full OCR and marker extraction is future work.
-- **Tier 2 uses keyword routing, not language understanding.** The offline
-  engine classifies a question by matching keywords in a fixed priority order.
-  It answers well-formed questions accurately, but an unusual paraphrase can
-  fall through to the grounded fallback. Handling free-form paraphrase is
-  precisely what Tier 1 (watsonx) is for. A scored, word-boundary dispatch
-  table is designed and logged as future work.
-- **Concurrency is guarded, not solved.** Every read-modify-write of the record
-  store is held under a mutex, and the AI engine reasons over an immutable
-  snapshot, so simultaneous requests cannot produce duplicate ids or a
-  half-mutated context. The store is still a single JSON file rewritten in
-  full, which does not scale beyond one user.
-- **Vitals and the health score are seeded values**, not readings from a device.
-
----
-
-## Future enhancements
-
-- OCR and lab-marker extraction so IBM Bob can compare panels value by value
-- Real device integration (Apple Health / Google Fit) for live vitals
-- Encryption at rest for the record store and uploads
-- Multi-user accounts with real authentication
-- Scored intent dispatch with word-boundary matching, replacing the ordered
-  keyword chain in the offline engine
-- Multilingual responses from IBM Bob
-- Reminder notifications for medications and appointments
-- Migration from JSON persistence to PostgreSQL for concurrent access
-
----
-
-## Team
-
-| Field | Value |
+| File | Shows |
 |---|---|
-| Team name | *to be completed* |
-| College | *to be completed* |
-| Team leader | *to be completed* |
-| Members | *to be completed* |
-| Contact | *to be completed* |
+| `03-tests-passing.png` | `80 passed in 2.33s` — the Bob-authored suite re-run after later code changes |
+| others | The IBM Bob IDE sessions and the Bob Findings panel |
 
 ---
 
-## Licence
+## How to read this evidence
 
-See [LICENSE](LICENSE).
+Three things are recorded deliberately, because they matter more than a list of
+accepted suggestions:
+
+**1. Where Bob was verified.** Before acting on session 01, all 16 line numbers
+Bob cited were checked against the source. Every one was correct. This is stated
+so the reader knows the review was not taken on trust.
+
+**2. Where Bob was wrong.** Two findings had defective remediations, both caught
+by testing rather than by reading:
+
+- **F-09** — Bob proposed a CORS origin of `localhost:3000`, the Create React
+  App port. This project uses Vite on 5173. Applying it verbatim would have
+  broken the dashboard.
+- **R-05** — Bob's regex to sanitise filenames was implemented exactly as given,
+  then defeated by a plain-English injection, because an instruction written in
+  ordinary words contains no characters for the filter to strip. A structural
+  defence was added instead.
+
+**3. Where Bob's advice was declined.** F-05 (authentication), F-10 (splitting
+the module), part of R-03 (relocating the uploads folder) and W-3 (replacing the
+intent router) were all deferred, each with a stated reason recorded in the
+relevant file. Engineering judgement about *when* to apply a correct suggestion
+is part of the record.
+
+---
+
+## Cost
+
+All nine sessions together consumed a small fraction of the 40 available
+Bobcoins — the first six totalled 2.86.
+
+---
+
+## The single most valuable finding
+
+Session 09 found that the assistant panel shipped with a hard-coded sample
+conversation in which IBM Bob quotes specific lab values (`16 → 22 ng/mL`) and
+offers to set a reminder. Neither capability exists, and rule 3a of the system
+prompt explicitly forbids stating a value read from a document.
+
+Any question a judge asked afterwards would have produced an honest refusal that
+visibly contradicted the conversation already on screen. It had survived the
+architecture review and the Responsible AI review because both looked at the
+backend. It cost two minutes to fix and would have cost the demo.

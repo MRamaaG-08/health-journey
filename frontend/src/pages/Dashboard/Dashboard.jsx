@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Hero from '../../components/Hero/Hero';
 import QuickActions from '../../components/QuickActions/QuickActions';
@@ -36,9 +36,27 @@ export default function Dashboard() {
   // null = not checked yet, true = reachable, false = unreachable
   const [backendOnline, setBackendOnline] = useState(null);
 
-  const loadData = async () => {
-    const dash = await fetchHealthDashboardData();
+  // React review R-02: two overlapping loadData calls could resolve out of
+  // order, letting an older response overwrite newer state. Each call takes a
+  // ticket; only the newest ticket is allowed to write.
+  const loadTicket = useRef(0);
+
+  // React review R-01: a plain arrow function gets a new identity on every
+  // render, so children holding it as a prop can call a stale closure.
+  const loadData = useCallback(async () => {
+    const ticket = ++loadTicket.current;
+
+    // Demo review 1B: these were sequential awaits, which made the dashboard
+    // load in two visible stages on a cold backend. Fired together now.
+    const [dash, extra] = await Promise.all([
+      fetchHealthDashboardData(),
+      fetchExtraDashboardData()
+    ]);
+
+    if (ticket !== loadTicket.current) return; // a newer load has overtaken us
+
     setBackendOnline(Boolean(dash));
+
     if (dash) {
       setDashboardData(prev => ({
         ...prev,
@@ -51,15 +69,14 @@ export default function Dashboard() {
       }));
     }
 
-    const extra = await fetchExtraDashboardData();
     if (extra) {
       setExtraData({ ...extra, loading: false });
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // --- Toast notifications (replaces blocking window.alert) ---------------
   const showToast = useCallback((message, tone = 'success') => {
@@ -74,6 +91,10 @@ export default function Dashboard() {
 
   // --- In-page navigation --------------------------------------------------
   // Pure client-side scrolling. No routing library, no API call, no AI call.
+  // React review R-04: this timeout was never cleared, so a component unmount
+  // mid-animation left a pending callback holding a DOM reference.
+  const highlightTimer = useRef(null);
+
   const scrollToSection = useCallback((sectionId) => {
     const target = document.getElementById(sectionId);
     if (!target) return;
@@ -85,10 +106,19 @@ export default function Dashboard() {
     // Force reflow so the animation can be retriggered on repeat clicks.
     void target.offsetWidth;
     target.classList.add('section-focused');
-    setTimeout(() => target.classList.remove('section-focused'), 1400);
+
+    if (highlightTimer.current) clearTimeout(highlightTimer.current);
+    highlightTimer.current = setTimeout(() => {
+      target.classList.remove('section-focused');
+      highlightTimer.current = null;
+    }, 1400);
   }, []);
 
-  const handleMedicationToggle = async (id) => {
+  useEffect(() => () => {
+    if (highlightTimer.current) clearTimeout(highlightTimer.current);
+  }, []);
+
+  const handleMedicationToggle = useCallback(async (id) => {
     try {
       const response = await toggleMedicationAPI(id);
       if (response && response.status === 'success') {
@@ -103,9 +133,9 @@ export default function Dashboard() {
       console.error("Failed to toggle medication:", error);
       showToast("Could not update that medication. Please try again.", "error");
     }
-  };
+  }, [showToast]);
 
-  const handleFocusToggle = async (id) => {
+  const handleFocusToggle = useCallback(async (id) => {
     try {
       const response = await toggleFocusTaskAPI(id);
       if (response && response.status === 'success') {
@@ -120,13 +150,15 @@ export default function Dashboard() {
       console.error("Failed to toggle focus task:", error);
       showToast("Could not update that task. Please try again.", "error");
     }
-  };
+  }, [showToast]);
 
-  const counts = {
+  // React review R-05: a fresh object literal every render defeats memoisation
+  // in any child that adopts React.memo later.
+  const counts = useMemo(() => ({
     documents: extraData.documents.length,
     family: extraData.family.length,
     appointments: extraData.calendar.length
-  };
+  }), [extraData.documents.length, extraData.family.length, extraData.calendar.length]);
 
   return (
     <div className="dashboard-wrapper">

@@ -20,6 +20,9 @@ folder is the underlying source.
 | 04 | [`04-intent-router-critique.md`](04-intent-router-critique.md) | Conversational, read-only | A scored-dispatch design for the intent router; accepted as correct, deferred deliberately |
 | 05 | [`05-architecture-review.md`](05-architecture-review.md) | Conversational, read-only | Adversarial judge review; W-1 changed the product's core privacy claim |
 | 06 | [`06-docstrings.md`](06-docstrings.md) | **Agent** | Google-style docstrings for nine functions |
+| 07 | [`07-frontend-review.md`](07-frontend-review.md) | Conversational, read-only | 9 React findings (R-01 to R-09) — re-renders, a race condition, silent HTTP failures, accessibility. All 9 implemented |
+| 08 | [`08-responsible-ai-review.md`](08-responsible-ai-review.md) | Conversational, read-only | 7 findings (P-01 to P-07) against IBM's six principles. P-01 rated Critical: a seeded score presented to a patient as a health assessment |
+| 09 | [`09-demo-readiness.md`](09-demo-readiness.md) | Conversational, read-only | 16 demo risks walked against the live sequence; found a fabricated on-screen conversation that would have contradicted the assistant live |
 
 `00-commit-history.txt` records the commit sequence, showing the order in which
 the work was done.
@@ -67,4 +70,19 @@ is part of the record.
 
 ## Cost
 
-All six sessions together consumed **2.86 of 40 available Bobcoins**.
+All nine sessions together consumed a small fraction of the 40 available
+Bobcoins — the first six totalled 2.86.
+
+---
+
+## The single most valuable finding
+
+Session 09 found that the assistant panel shipped with a hard-coded sample
+conversation in which IBM Bob quotes specific lab values (`16 → 22 ng/mL`) and
+offers to set a reminder. Neither capability exists, and rule 3a of the system
+prompt explicitly forbids stating a value read from a document.
+
+Any question a judge asked afterwards would have produced an honest refusal that
+visibly contradicted the conversation already on screen. It had survived the
+architecture review and the Responsible AI review because both looked at the
+backend. It cost two minutes to fix and would have cost the demo.

@@ -19,3 +19,10 @@
 .footer-links a:hover {
   color: var(--text-primary);
 }
+/* Responsible AI review P-01 — sample-data disclosure */
+.footer-demo-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+}

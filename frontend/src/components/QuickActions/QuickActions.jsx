@@ -38,7 +38,10 @@ export default function QuickActions({ onDocumentUploaded, onNavigate, onToast, 
         if (onDocumentUploaded) {
           onDocumentUploaded();
         }
-        notify(`"${file.name}" uploaded. IBM Bob has indexed it into your records.`);
+        notify(`"${file.name}" uploaded. IBM Bob has catalogued it into your records.`);
+        // Demo review 3A: the smooth scroll and the refetch race each other. A
+        // short head start means the list is current before the scroll lands.
+        await new Promise(resolve => setTimeout(resolve, 300));
         goTo('section-records');
       }
     } catch (error) {
@@ -67,14 +70,6 @@ export default function QuickActions({ onDocumentUploaded, onNavigate, onToast, 
         input.focus({ preventScroll: true });
       }
     }, 700);
-  };
-
-  // Makes a div behave like a button for keyboard users.
-  const keyActivate = (handler) => (event) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      handler();
-    }
   };
 
   const cards = [
@@ -132,14 +127,16 @@ export default function QuickActions({ onDocumentUploaded, onNavigate, onToast, 
         accept=".pdf,.png,.jpg,.jpeg"
       />
 
+      {/* React review R-07: these were div[role=button]. Native <button>
+          brings real disabled semantics, a guaranteed focus ring and correct
+          Enter/Space handling for free. */}
       {cards.map(card => (
-        <div
+        <button
           key={card.className}
+          type="button"
           className={`qa-card ${card.className}`}
           onClick={card.onActivate}
-          onKeyDown={keyActivate(card.onActivate)}
-          role="button"
-          tabIndex={0}
+          disabled={card.className === 'upload' && uploading}
         >
           <div className="qa-icon-wrapper">{card.icon}</div>
           <div className="qa-title">{card.title}</div>
@@ -148,7 +145,7 @@ export default function QuickActions({ onDocumentUploaded, onNavigate, onToast, 
               ? `${documentCount} in your vault`
               : card.subtitle}
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );

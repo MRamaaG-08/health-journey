@@ -48,6 +48,21 @@
   padding: 0;
 }
 
+/* Smooth in-page navigation for the navbar and Quick Action cards. */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Respect the operating system's reduced-motion preference. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .ambient-blob {
+    animation: none !important;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-body);

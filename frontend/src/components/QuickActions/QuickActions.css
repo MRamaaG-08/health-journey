@@ -79,3 +79,12 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* Quick Action cards are keyboard-operable buttons (Sprint 3). */
+.qa-card:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 3px;
+}
+
+.qa-card:active {
+  transform: translateY(-1px);
+}

@@ -49,7 +49,16 @@
   margin-left: 6px;
 }
 
+/* Nav items are real <button> elements now, so the default button chrome
+   is reset here. The visual result is identical to the previous <a> tags. */
 .nav-link {
+  appearance: none;
+  -webkit-appearance: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 7px;
@@ -198,4 +207,13 @@
 .user-name {
   font-size: 13px;
   font-weight: 550;
+}
+
+.nav-link:focus-visible {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+.notification-btn {
+  cursor: pointer;
 }

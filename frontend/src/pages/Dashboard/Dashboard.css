@@ -106,3 +106,103 @@
     padding: 32px 24px;
   }
 }
+/* ===========================================================
+   In-page navigation (Sprint 3)
+   Offsets scroll targets so the sticky 76px navbar never
+   covers the heading of the section you jumped to.
+   =========================================================== */
+
+.dashboard-section,
+.section-anchor,
+#section-appointments {
+  scroll-margin-top: 96px;
+}
+
+/* Grid anchor wrappers around the bottom-row cards. `display: grid`
+   keeps each child stretching to the full column exactly as before. */
+.section-anchor {
+  display: grid;
+  min-width: 0;
+}
+
+/* Brief highlight confirming where a nav click landed. */
+.section-focused {
+  animation: section-land 1.4s ease-out;
+}
+
+@keyframes section-land {
+  0%   { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); border-radius: 24px; }
+  18%  { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.16); border-radius: 24px; }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); border-radius: 24px; }
+}
+
+/* ===========================================================
+   Toast notifications (replaces blocking window.alert)
+   =========================================================== */
+
+.app-toast {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 380px;
+  padding: 13px 17px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 22px 48px -20px rgba(15, 23, 42, 0.34);
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text-primary);
+  animation: toast-in 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.app-toast-icon {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.app-toast-success .app-toast-icon {
+  color: var(--accent-teal-dark);
+}
+
+.app-toast-error .app-toast-icon {
+  color: var(--accent-red);
+}
+
+.app-toast-success {
+  border-color: rgba(20, 184, 166, 0.3);
+}
+
+.app-toast-error {
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.app-toast-text {
+  min-width: 0;
+  word-break: break-word;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-toast { animation: none; }
+  .section-focused { animation: none; }
+}
+
+@media (max-width: 768px) {
+  .app-toast {
+    right: 14px;
+    left: 14px;
+    bottom: 14px;
+    max-width: none;
+  }
+}

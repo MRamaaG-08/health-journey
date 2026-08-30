@@ -15,7 +15,7 @@
             "id": 1,
             "name": "Vitamin D3 · 60,000 IU",
             "due": "Due at 9:00 PM with dinner",
-            "taken": false
+            "taken": true
         },
         {
             "id": 2,

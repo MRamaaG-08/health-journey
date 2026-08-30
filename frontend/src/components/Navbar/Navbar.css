@@ -1,0 +1,201 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(24px) saturate(170%);
+  background: rgba(248, 250, 252, 0.74);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.navbar-content {
+  padding: 0 56px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: none;
+}
+
+.brand-logo {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  background: linear-gradient(140deg, var(--accent-blue), var(--accent-teal));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.34);
+  overflow: hidden;
+}
+
+.brand-text {
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.032em;
+  color: var(--text-primary);
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 6px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 8px 13px;
+  border-radius: 11px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+
+.nav-link.active {
+  background: rgba(15, 23, 42, 0.055);
+  color: var(--text-primary);
+  font-weight: 560;
+}
+
+.nav-link:hover:not(.active) {
+  background: rgba(15, 23, 42, 0.04);
+  color: var(--text-primary);
+}
+
+.navbar-search {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.search-input-wrapper {
+  width: 380px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 13px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.075);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: box-shadow 0.22s ease, border-color 0.22s ease;
+  cursor: text;
+}
+
+.search-input-wrapper:hover, .search-input-wrapper:focus-within {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12), 0 8px 24px -12px rgba(59, 130, 246, 0.45);
+}
+
+.search-input-wrapper input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.search-input-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-shortcut {
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--text-muted);
+  padding: 2.5px 6px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.045);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+
+.notification-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+  border: 1px solid rgba(15, 23, 42, 0.075);
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: var(--transition);
+}
+
+.notification-btn:hover {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 8px 20px -8px rgba(15, 23, 42, 0.24);
+}
+
+.notification-dot {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-teal);
+  border: 1.5px solid #FFFFFF;
+}
+
+.nav-divider {
+  width: 1px;
+  height: 24px;
+  background: rgba(15, 23, 42, 0.08);
+}
+
+.user-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 11px 4px 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.075);
+  background: #FFFFFF;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  transition: var(--transition);
+}
+
+.user-profile-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px -8px rgba(15, 23, 42, 0.24);
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--accent-purple), var(--accent-blue));
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-name {
+  font-size: 13px;
+  font-weight: 550;
+}

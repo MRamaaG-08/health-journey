@@ -1,0 +1,151 @@
+.timeline-container {
+  background: #fff;
+  padding: 32px;
+  border-radius: 22px;
+  box-shadow: 0 10px 26px -22px rgba(15, 23, 42, 0.4), 0 1px 2px rgba(15, 23, 42, 0.03);
+  border: 1px solid var(--border-light);
+  height: 100%;
+}
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.timeline-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.timeline-filters {
+  display: flex;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.04);
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.timeline-filter-btn {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.timeline-filter-btn:hover {
+  color: var(--text-primary);
+}
+
+.timeline-filter-btn.active {
+  background: #fff;
+  color: var(--text-primary);
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.1);
+}
+
+.timeline-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-left: 12px;
+}
+
+/* Vertical Connection Line */
+.timeline-list::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 21.5px;
+  width: 2px;
+  background: var(--border-light);
+  z-index: 0;
+}
+
+.timeline-event-item {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  z-index: 1;
+}
+
+.timeline-marker-wrapper {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 21px;
+}
+
+.timeline-marker {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid #fff;
+}
+
+/* Category Colors */
+.marker-ai { background: var(--accent-purple); box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.2); }
+.marker-lab { background: var(--accent-blue); box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2); }
+.marker-med { background: var(--accent-teal); box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.2); }
+.marker-alert { background: var(--accent-red); box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2); }
+.marker-vax { background: var(--accent-amber); box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2); }
+
+.timeline-content-box {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--border-light);
+  padding: 16px;
+  border-radius: 16px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.timeline-content-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -12px rgba(15, 23, 42, 0.12);
+}
+
+.timeline-date {
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.timeline-item-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 650;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.timeline-badge {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--accent-purple-dark);
+}
+
+.timeline-desc {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}

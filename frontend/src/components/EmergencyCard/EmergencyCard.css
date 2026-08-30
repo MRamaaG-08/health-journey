@@ -1,0 +1,104 @@
+.emergency-card-wrapper {
+  border-radius: 22px;
+  padding: 26px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(254, 242, 244, 0.92));
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(244, 63, 94, 0.14);
+  box-shadow: 0 22px 48px -32px rgba(244, 63, 94, 0.42), var(--shadow-sm);
+}
+
+.emergency-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.emergency-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 640;
+  letter-spacing: -0.022em;
+}
+
+.shareable-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3.5px 9px;
+  border-radius: 8px;
+  background: rgba(244, 63, 94, 0.10);
+  color: var(--accent-red-dark);
+}
+
+.emergency-summary-box {
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(15, 23, 42, 0.05);
+  margin-bottom: 16px;
+}
+
+.emergency-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+}
+.emergency-row + .emergency-row {
+  margin-top: 10px;
+}
+.emergency-row span:first-child { color: var(--text-secondary); }
+.emergency-row span:last-child { font-weight: 620; }
+
+.emergency-contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.emergency-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 11px;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+.emergency-contact-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateX(3px);
+}
+
+.contact-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.contact-icon-box.red { background: rgba(244, 63, 94, 0.09); }
+.contact-icon-box.slate { background: rgba(15, 23, 42, 0.055); }
+
+.contact-name { font-size: 13px; font-weight: 550; }
+.contact-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+
+.emergency-share-btn {
+  width: 100%;
+  height: 40px;
+  margin-top: 18px;
+  border-radius: 13px;
+  border: none;
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -10px rgba(15, 23, 42, 0.5);
+  transition: var(--transition);
+}
+.emergency-share-btn:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 14px 30px -10px rgba(15, 23, 42, 0.55);
+}

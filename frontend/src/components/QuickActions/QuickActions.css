@@ -1,0 +1,81 @@
+.qa-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 18px;
+}
+
+.qa-card {
+  border-radius: 20px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 10px 26px -22px rgba(15, 23, 42, 0.4), 0 1px 2px rgba(15, 23, 42, 0.03);
+  cursor: pointer;
+  transition: var(--transition-bounce), box-shadow 0.24s ease, border-color 0.24s ease;
+}
+
+.qa-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 44px -22px rgba(15, 23, 42, 0.34);
+}
+
+.qa-icon-wrapper {
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.qa-title {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.qa-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Card Specific Themes */
+.qa-card.upload:hover { border-color: rgba(59, 130, 246, 0.26); }
+.qa-card.upload .qa-icon-wrapper { background: rgba(59, 130, 246, 0.10); }
+
+.qa-card.ask-ai {
+  background: linear-gradient(150deg, rgba(139, 92, 246, 0.13), rgba(59, 130, 246, 0.09));
+  border: 1px solid rgba(139, 92, 246, 0.20);
+  box-shadow: 0 10px 26px -22px rgba(139, 92, 246, 0.6);
+}
+.qa-card.ask-ai:hover { 
+  box-shadow: 0 24px 44px -20px rgba(139, 92, 246, 0.5); 
+  border-color: rgba(139, 92, 246, 0.20); 
+}
+.qa-card.ask-ai .qa-icon-wrapper { background: rgba(255, 255, 255, 0.85); }
+
+.qa-card.journey:hover { border-color: rgba(20, 184, 166, 0.3); }
+.qa-card.journey .qa-icon-wrapper { background: rgba(20, 184, 166, 0.10); }
+
+.qa-card.appointments:hover { border-color: rgba(15, 23, 42, 0.13); }
+.qa-card.appointments .qa-icon-wrapper { background: rgba(15, 23, 42, 0.055); }
+
+.qa-card.family:hover { border-color: rgba(20, 184, 166, 0.3); }
+.qa-card.family .qa-icon-wrapper { background: rgba(20, 184, 166, 0.09); }
+
+.qa-card.emergency:hover { border-color: rgba(244, 63, 94, 0.22); }
+.qa-card.emergency .qa-icon-wrapper { background: rgba(244, 63, 94, 0.09); }
+
+@media (max-width: 1200px) {
+  .qa-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .qa-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

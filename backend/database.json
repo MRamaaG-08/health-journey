@@ -1,0 +1,196 @@
+{
+    "user": {
+        "firstName": "Ramaa",
+        "fullName": "Ramaa Iyer",
+        "score": 87
+    },
+    "vitals": {
+        "restingHR": 62,
+        "bp": "118/76",
+        "spo2": 98,
+        "steps": 8412
+    },
+    "medications": [
+        {
+            "id": 1,
+            "name": "Vitamin D3 · 60,000 IU",
+            "due": "Due at 9:00 PM with dinner",
+            "taken": false
+        },
+        {
+            "id": 2,
+            "name": "Metformin 500mg",
+            "due": "Paused by Dr. Kapoor",
+            "taken": true
+        }
+    ],
+    "appointments": [
+        {
+            "id": 1,
+            "doctor": "Dr. Meera Kapoor",
+            "specialty": "Endocrinology · Follow-up",
+            "date": "26",
+            "day": "WED",
+            "time": "10:30 AM · Video consult"
+        }
+    ],
+    "focus": [
+        {
+            "id": 1,
+            "task": "20-min morning walk",
+            "done": true,
+            "xp": 0
+        },
+        {
+            "id": 2,
+            "task": "Log breakfast",
+            "done": true,
+            "xp": 0
+        },
+        {
+            "id": 3,
+            "task": "Drink 2 more glasses of water",
+            "done": false,
+            "xp": 20
+        },
+        {
+            "id": 4,
+            "task": "Upload Dad's BP readings",
+            "done": false,
+            "xp": 40
+        }
+    ],
+    "timeline": [
+        {
+            "id": 1,
+            "type": "ai",
+            "title": "Your August checkup, explained in plain language",
+            "desc": "28 of 31 markers in range. HbA1c improved to 5.4%.",
+            "date": "2 days ago",
+            "badge": "Generated for you"
+        },
+        {
+            "id": 2,
+            "type": "lab",
+            "title": "Full body checkup — Apollo Diagnostics",
+            "desc": "31 markers tested and compared against your last four panels.",
+            "date": "Aug 22"
+        },
+        {
+            "id": 3,
+            "type": "vax",
+            "title": "Influenza (Quadrivalent) — annual dose",
+            "desc": "MedPlus Clinic · Next due July 2027 · Reminder set",
+            "date": "Jul 14"
+        },
+        {
+            "id": 4,
+            "type": "med",
+            "title": "Dr. Meera Kapoor — prescription updated",
+            "desc": "Vitamin D3 weekly · Magnesium nightly · Metformin 500mg paused",
+            "date": "Jun 28"
+        },
+        {
+            "id": 5,
+            "type": "alert",
+            "title": "Urgent care visit — acute dehydration",
+            "desc": "Resolved same day · IV fluids · No follow-up required",
+            "date": "Mar 03"
+        }
+    ],
+    "calendar": [
+        {
+            "id": 1,
+            "title": "Endocrinology follow-up",
+            "time": "Wed 26 · 10:30 AM",
+            "doctor": "Dr. Meera Kapoor",
+            "color": "blue"
+        },
+        {
+            "id": 2,
+            "title": "Dental cleaning",
+            "time": "Sep 07 · 4:00 PM",
+            "doctor": "Dr. Arjun Nair",
+            "color": "teal"
+        }
+    ],
+    "documents": [
+        {
+            "id": 1,
+            "type": "pdf",
+            "name": "Full body checkup — Aug 2026",
+            "meta": "2 days ago · 1.8 MB · Apollo",
+            "parsed": true
+        },
+        {
+            "id": 2,
+            "type": "rx",
+            "name": "Prescription — Dr. Meera Kapoor",
+            "meta": "Jun 28 · 420 KB · 3 medications",
+            "parsed": false
+        },
+        {
+            "id": 3,
+            "type": "img",
+            "name": "Chest X-ray — routine screening",
+            "meta": "May 11 · 6.2 MB · Fortis Imaging",
+            "parsed": false
+        },
+        {
+            "id": 4,
+            "type": "ins",
+            "name": "Insurance policy — renewal 2026",
+            "meta": "Apr 02 · 980 KB · HDFC Ergo",
+            "parsed": false
+        }
+    ],
+    "family": [
+        {
+            "id": 1,
+            "initials": "SI",
+            "name": "Suresh Iyer",
+            "meta": "Father · 64 · Hypertension",
+            "status": "warning"
+        },
+        {
+            "id": 2,
+            "initials": "LI",
+            "name": "Lakshmi Iyer",
+            "meta": "Mother · 61 · All clear",
+            "status": "success"
+        },
+        {
+            "id": 3,
+            "initials": "KV",
+            "name": "Karthik Venkat",
+            "meta": "Partner · 31 · All clear",
+            "status": "success"
+        },
+        {
+            "id": 4,
+            "initials": "AV",
+            "name": "Aarav Venkat",
+            "meta": "Son · 4 · Vaccine due Sep 12",
+            "status": "info"
+        }
+    ],
+    "emergency": {
+        "bloodGroup": "O+",
+        "allergies": "Penicillin",
+        "conditions": "Pre-diabetic",
+        "contacts": [
+            {
+                "id": 1,
+                "name": "Karthik Venkat",
+                "relation": "Partner · Primary contact",
+                "type": "primary"
+            },
+            {
+                "id": 2,
+                "name": "Dr. Meera Kapoor",
+                "relation": "Primary physician",
+                "type": "doctor"
+            }
+        ]
+    }
+}

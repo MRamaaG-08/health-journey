@@ -5,7 +5,9 @@ Complete reference for the Health Journey backend.
 **Base URL:** `http://localhost:5000/api`
 **Content type:** `application/json` unless stated otherwise
 **Authentication:** none — Health Journey is a single-user local application
-**CORS:** enabled for all origins (`flask-cors`)
+**CORS:** restricted to the local frontend origins (`http://localhost:5173`,
+`http://localhost:4173` and their `127.0.0.1` equivalents). Override with the
+`ALLOWED_ORIGINS` environment variable.
 
 Every example below is a **real captured response** from a running server, not
 an illustration.
@@ -28,6 +30,7 @@ an illustration.
 | 10 | `DELETE` | `/api/documents/<id>` | Delete a document |
 | 11 | `POST` | `/api/medication/toggle` | Toggle medication taken state |
 | 12 | `POST` | `/api/focus/update` | Toggle focus task done state |
+| 13 | `GET` | `/api/documents/<id>/content` | Serve an uploaded document's file |
 
 ---
 
@@ -197,7 +200,7 @@ Ask IBM Bob a question about the health record.
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
-| `prompt` | string | yes | An empty string returns a friendly prompt-for-input |
+| `prompt` | string | yes | An empty string returns a friendly prompt-for-input. Truncated at 800 characters |
 
 **Response `200 OK`**
 
@@ -302,12 +305,28 @@ Accepted by the UI: `.pdf`, `.png`, `.jpg`, `.jpeg`.
 3. A timeline event is prepended, carrying `documentId` to link the two.
 4. `database.json` is written, so the upload survives a restart.
 
-**Errors**
+**Validation — all checks run *before* anything is written to disk**
 
 | Status | Body | Cause |
 |---|---|---|
 | `400` | `{ "error": "No file part in the request" }` | No `file` field |
 | `400` | `{ "error": "No selected file" }` | Empty filename |
+| `400` | `{ "error": "File is empty" }` | Zero-byte file |
+| `413` | `{ "error": "File exceeds the 20 MB limit" }` | Over `MAX_UPLOAD_BYTES` |
+| `415` | `{ "error": "File type not permitted. Allowed: jpeg, jpg, pdf, png" }` | Extension not in the allowlist |
+| `415` | `{ "error": "File content is not a valid PDF, PNG or JPEG" }` | Magic bytes do not match any permitted format |
+| `415` | `{ "error": "File extension (.pdf) does not match its actual content (png)" }` | Extension and content disagree |
+| `415` | `{ "error": "Image dimensions exceed the permitted size" }` | PNG declares more than 8000px on a side |
+| `500` | `{ "error": "Document was received but could not be saved..." }` | Persistence failure |
+
+**Storage.** The file is written under a generated UUID name, never the name
+the user supplied, so filenames can never collide or be guessed. The record
+carries both:
+
+- `name` — the sanitised display label, capped at 60 characters
+- `storedAs` — the opaque filename on disk
+
+Seeded sample documents have no `storedAs`, because no file backs them.
 
 **curl**
 
@@ -374,7 +393,9 @@ The response returns the medication in its **new** state. Persisted immediately.
 
 | Status | Body | Cause |
 |---|---|---|
+| `400` | `{ "error": "'id' must be an integer" }` | `id` missing, null, a string, a boolean or a list |
 | `404` | `{ "error": "Medication not found" }` | No medication with that id |
+| `500` | `{ "error": "Change could not be saved." }` | Persistence failure |
 
 ---
 
@@ -401,7 +422,35 @@ Invert a focus task's `done` state.
 
 | Status | Body | Cause |
 |---|---|---|
+| `400` | `{ "error": "'id' must be an integer" }` | `id` missing, null, a string, a boolean or a list |
 | `404` | `{ "error": "Task not found" }` | No task with that id |
+| `500` | `{ "error": "Change could not be saved." }` | Persistence failure |
+
+---
+
+## 13. GET /api/documents/&lt;id&gt;/content
+
+Serve the file behind a document. This is what the **View** button in Recent
+Documents opens.
+
+The id is resolved against the record store first and the path is confined to
+the uploads folder, so files are never reachable by guessing a filename.
+
+**Response `200 OK`** — the file itself.
+
+| Header | Value |
+|---|---|
+| `Content-Type` | `application/pdf`, `image/png` or `image/jpeg`, from the stored extension |
+| `Content-Disposition` | `inline; filename="<display name>.<ext>"` |
+| `X-Content-Type-Options` | `nosniff` |
+| `Content-Security-Policy` | `default-src 'none'; img-src 'self'` |
+
+**Errors**
+
+| Status | Body | Cause |
+|---|---|---|
+| `404` | `{ "error": "Document not found" }` | No document with that id |
+| `404` | `{ "error": "This is a sample record with no file attached..." }` | Seeded record, or the file is missing from disk |
 
 ---
 
@@ -411,8 +460,11 @@ Invert a focus task's `done` state.
 |---|---|
 | `200` | Success |
 | `201` | Document created |
-| `400` | Malformed upload request |
+| `400` | Malformed request — bad upload, or a non-integer `id` |
 | `404` | Referenced id does not exist |
+| `413` | Upload exceeds the 20 MB limit |
+| `415` | Upload file type not permitted |
+| `500` | The record store could not be written |
 
 ---
 

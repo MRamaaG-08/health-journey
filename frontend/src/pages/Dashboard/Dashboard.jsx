@@ -33,9 +33,12 @@ export default function Dashboard() {
   });
 
   const [toast, setToast] = useState(null);
+  // null = not checked yet, true = reachable, false = unreachable
+  const [backendOnline, setBackendOnline] = useState(null);
 
   const loadData = async () => {
     const dash = await fetchHealthDashboardData();
+    setBackendOnline(Boolean(dash));
     if (dash) {
       setDashboardData(prev => ({
         ...prev,
@@ -135,6 +138,18 @@ export default function Dashboard() {
       <Navbar userName={dashboardData.user.fullName} onNavigate={scrollToSection} />
 
       <main className="dashboard-main">
+        {backendOnline === false && (
+          <div className="backend-offline-banner" role="alert">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.2" stroke="currentColor" strokeWidth="1.5"></circle><path d="M8 5v3.6M8 10.8v.1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"></path></svg>
+            <div>
+              <strong>Can&rsquo;t reach the Health Journey backend.</strong> The
+              cards below are showing placeholder values, not your record. Start
+              the server with <code>python app.py</code> in the backend folder,
+              then reload this page.
+            </div>
+          </div>
+        )}
+
         <section className="dashboard-section hero-section" id="section-dashboard">
           <Hero
             data={dashboardData}

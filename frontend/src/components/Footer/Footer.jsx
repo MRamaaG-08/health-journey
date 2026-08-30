@@ -4,7 +4,7 @@ import './Footer.css';
 export default function Footer() {
   return (
     <footer className="footer-wrapper">
-      <span>Health Journey · Your records are encrypted end-to-end</span>
+      <span>Health Journey · Your records stay on your device</span>
       <span className="footer-links">
         <a href="#">Privacy</a>
         <a href="#">Data sources</a>

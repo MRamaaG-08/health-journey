@@ -52,13 +52,21 @@ export default function QuickActions({ onDocumentUploaded, onNavigate, onToast, 
   // Ask AI: scroll the assistant into view, then put the cursor in its input
   // so the user can start typing straight away.
   const handleAskAI = () => {
-    goTo('section-journey');
+    // The assistant sits in the right-hand column of the timeline section, well
+    // below its top edge, so scrolling to the section itself stops short of it.
+    // Target the card directly and centre it in the viewport.
+    const card = document.querySelector('.ai-assistant-card');
+    if (card) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      goTo('section-journey');
+    }
     setTimeout(() => {
       const input = document.querySelector('.ai-input-field');
       if (input) {
         input.focus({ preventScroll: true });
       }
-    }, 620);
+    }, 700);
   };
 
   // Makes a div behave like a button for keyboard users.

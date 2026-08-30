@@ -43,6 +43,12 @@ export async function uploadMedicalDocument(file) {
   }
 }
 
+// Absolute URL of a document's file, served through the controlled backend
+// route rather than a predictable path inside the uploads folder.
+export function getDocumentContentUrl(id) {
+  return `${API_BASE_URL}/documents/${id}/content`;
+}
+
 export async function deleteMedicalDocument(id) {
   try {
     const response = await fetch(`${API_BASE_URL}/documents/${id}`, {
@@ -86,6 +92,6 @@ export async function sendAIBobQuery(promptText) {
     return data.reply;
   } catch (error) {
     console.error('AI backend unreachable:', error);
-    return "I've analyzed your encrypted health records locally. Everything remains stable, but please consult Dr. Meera Kapoor during your upcoming Wednesday check-in.";
+    return "I can't reach the Health Journey backend right now, so I can't read your record. Please check the server is running and try again.";
   }
 }

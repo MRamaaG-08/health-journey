@@ -51,7 +51,7 @@ export default function AIAssistant() {
             <div className="ai-title">IBM Bob · AI Health Assistant</div>
             <div className="ai-status">
               <span className="ai-status-dot"></span>
-              {isProcessing ? 'Analyzing encrypted records...' : 'Reads your records privately'}
+              {isProcessing ? 'Reading your record…' : 'Reads your record, privately and on-device'}
             </div>
           </div>
         </div>

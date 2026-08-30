@@ -206,3 +206,40 @@
     max-width: none;
   }
 }
+
+/* ===========================================================
+   Backend-unreachable banner
+   Without this the dashboard silently renders placeholder
+   values, which is worse than showing nothing at all.
+   =========================================================== */
+
+.backend-offline-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(239, 68, 68, 0.07);
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  color: var(--accent-red-dark);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.backend-offline-banner svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--accent-red);
+}
+
+.backend-offline-banner strong {
+  font-weight: 600;
+}
+
+.backend-offline-banner code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: rgba(239, 68, 68, 0.1);
+}

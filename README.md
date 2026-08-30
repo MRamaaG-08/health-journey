@@ -39,8 +39,9 @@ forwards and half a dozen hospital portals. Things get missed.
 
 Health Journey gives you one place for all of it:
 
-- Upload a report and it is **parsed, indexed and placed on your timeline** in
-  one step.
+- Upload a report and it is **catalogued and placed on your timeline** in one
+  step, indexed by name, type, size and date. IBM Bob does not read the text
+  inside a PDF yet, and says so when asked.
 - Your medications and daily focus tasks **persist** — tick one, restart the
   server, it is still ticked.
 - **IBM Bob** reads the record and answers questions about it in everyday
@@ -240,6 +241,8 @@ frontend `.env` file is required for local development.
 | `IBM_PROJECT_ID` | No | — | watsonx.ai project ID |
 | `IBM_URL` | No | `https://us-south.ml.cloud.ibm.com` | watsonx.ai regional endpoint |
 | `IBM_MODEL_ID` | No | `ibm/granite-3-8b-instruct` | Granite model powering IBM Bob |
+| `ALLOWED_ORIGINS` | No | localhost 5173/4173 | Comma-separated CORS allowlist |
+| `HOST` | No | `127.0.0.1` | Network interface. Loopback only by default — set `0.0.0.0` only if you deliberately need access from another device |
 | `PORT` | No | `5000` | Flask port |
 | `FLASK_DEBUG` | No | `false` | Keep `false` for demos |
 
@@ -272,8 +275,12 @@ python app.py
  IBM Bob engine : Grounded local inference (watsonx key not set)
  Records loaded : 4 documents, 5 timeline events
  Debug mode    : OFF (demo safe)
+ Bound to      : 127.0.0.1:5000 (this machine only)
 ==============================================================
 ```
+
+Flask prints a red *"This is a development server"* warning after the banner.
+That is expected and harmless for a local demo.
 
 **Terminal 2 — frontend**
 
@@ -312,6 +319,7 @@ Base URL: `http://localhost:5000/api`
 | `DELETE` | `/documents/<id>` | Delete a document and its timeline event |
 | `POST` | `/medication/toggle` | Toggle a medication as taken |
 | `POST` | `/focus/update` | Toggle a focus task as done |
+| `GET` | `/documents/<id>/content` | Serve an uploaded document's file |
 
 Full request and response bodies: **[docs/API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md)**
 
@@ -349,11 +357,30 @@ Detail: **[docs/architecture.md](docs/architecture.md)**
 
 - **Local by default.** The record never leaves the machine unless watsonx is
   explicitly configured, and even then only the prompt context is sent.
+- **No encryption at rest — stated plainly.** `database.json` and the uploads
+  folder are stored unencrypted on the local disk. Health Journey's privacy
+  claim is *locality* — your record stays on your device and is not sent to a
+  server, sold, or tracked — not cryptography. Encryption at rest is named in
+  Future Enhancements, and nothing in this project claims to implement it.
 - **No accounts, no tracking, no analytics.**
 - **Secrets stay out of the repo.** `.env` is git-ignored; uploaded documents
   are git-ignored.
-- **Filenames are sanitised** with Werkzeug's `secure_filename` before any file
-  touches disk.
+- **Uploads are validated before they touch disk** — extension allowlist
+  (`pdf`, `png`, `jpg`, `jpeg`), a 20 MB cap, rejection of empty files, a
+  **magic-byte check** so a renamed executable cannot pass as a PDF, a
+  content-versus-extension match, and a dimension sanity check on PNGs.
+- **Files are stored under generated UUID names**, never the name the user
+  supplied, and are reachable only through a controlled route that resolves
+  the document id first — never by guessing a path. Deletion is confined to
+  the uploads folder, so a tampered record store cannot reach a source file.
+- **Document names are treated as untrusted data by the AI engine.** They are
+  fenced in `<untrusted>` tags in the prompt context, and IBM Bob is instructed
+  that such text is a label to read back, never an instruction to follow.
+- **CORS is restricted** to the local frontend origins rather than `*`, so a
+  page on another site cannot read the health record.
+- **Writes are atomic.** `database.json` is written to a temporary file and
+  moved into place, so an interrupted write cannot corrupt the record store,
+  and a failed write returns `500` instead of silently pretending to succeed.
 - **IBM Bob never diagnoses.** Both engines are bound by the same safety rules
   and defer clinical judgement to a qualified professional.
 
@@ -364,15 +391,29 @@ Detail: **[docs/architecture.md](docs/architecture.md)**
 Stated plainly, because they are the honest boundary of what was built in a
 hackathon:
 
-- **Single user.** There is no authentication or multi-tenancy; the record store
-  is one JSON file.
-- **Document parsing is metadata-level.** Uploads are indexed by filename, type
-  and size. IBM Bob reasons about *which* documents exist, not the text inside
-  a PDF. Full OCR and marker extraction is future work.
-- **Concurrency.** `database.json` is rewritten on each mutation. That is fine
-  for one user; it is not safe for simultaneous writers.
+- **No authentication.** Health Journey is designed as a single-user local
+  application: there are no accounts, and every endpoint is open to whoever can
+  reach the port. This is an accepted trade-off for a locally-run hackathon
+  build, mitigated two ways: the server binds to loopback only by default, so
+  it is not reachable from the network at all, and CORS is restricted to local
+  origins. Multi-user support would require real authentication first.
+- **Document indexing is metadata-level.** Uploads are catalogued by filename,
+  type, size and date. IBM Bob reasons about *which* documents exist, not the
+  text inside a PDF — and if you ask it for a value that would live inside a
+  report, it tells you plainly that it cannot read the file and refuses to
+  guess a number. Full OCR and marker extraction is future work.
+- **Tier 2 uses keyword routing, not language understanding.** The offline
+  engine classifies a question by matching keywords in a fixed priority order.
+  It answers well-formed questions accurately, but an unusual paraphrase can
+  fall through to the grounded fallback. Handling free-form paraphrase is
+  precisely what Tier 1 (watsonx) is for. A scored, word-boundary dispatch
+  table is designed and logged as future work.
+- **Concurrency is guarded, not solved.** Every read-modify-write of the record
+  store is held under a mutex, and the AI engine reasons over an immutable
+  snapshot, so simultaneous requests cannot produce duplicate ids or a
+  half-mutated context. The store is still a single JSON file rewritten in
+  full, which does not scale beyond one user.
 - **Vitals and the health score are seeded values**, not readings from a device.
-- **No test suite yet.** Verification so far has been manual and browser-driven.
 
 ---
 
@@ -380,7 +421,10 @@ hackathon:
 
 - OCR and lab-marker extraction so IBM Bob can compare panels value by value
 - Real device integration (Apple Health / Google Fit) for live vitals
-- Multi-user accounts with encryption at rest
+- Encryption at rest for the record store and uploads
+- Multi-user accounts with real authentication
+- Scored intent dispatch with word-boundary matching, replacing the ordered
+  keyword chain in the offline engine
 - Multilingual responses from IBM Bob
 - Reminder notifications for medications and appointments
 - Migration from JSON persistence to PostgreSQL for concurrent access

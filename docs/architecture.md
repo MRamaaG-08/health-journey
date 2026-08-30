@@ -275,7 +275,9 @@ The next `/api/ai/chat` request reflects the change, because
 | Two-tier AI instead of watsonx-only | Demo cannot fail on venue Wi-Fi | Two code paths to maintain |
 | Plain CSS instead of a framework | Full control of the design language; no build weight | More CSS written by hand |
 | Single stateful container | One place to reason about state | Prop drilling in deep trees |
-| Metadata-level document indexing | Deliverable within the hackathon window | No marker-level comparison yet |
+| Metadata-level document indexing | Deliverable within the hackathon window | No marker-level comparison yet; IBM Bob must say so rather than guess |
+| No encryption at rest | Privacy claim is locality, not cryptography; a key stored beside the data it protects is theatre | Local disk access exposes the record; named as future work |
+| Ordered keyword routing in Tier 2 | Small, fast, fully testable offline; 80 unit tests cover it | Unusual paraphrase falls through to the fallback rather than matching |
 
 ---
 
@@ -283,3 +285,20 @@ The next `/api/ai/chat` request reflects the change, because
 
 > The application organises health information.
 > Clinical decisions remain with qualified medical professionals.
+
+---
+
+## 10. What this system does not claim
+
+Stated here so it cannot be mistaken:
+
+- **It is not encrypted at rest.** The record store and uploads sit in plain
+  files on the local disk. The privacy property is that they never leave the
+  device, not that they are protected by cryptography.
+- **It does not read documents.** Uploads are catalogued by metadata. IBM Bob
+  can tell you a report exists; it cannot tell you what is written in it, and
+  is instructed to say so rather than guess a value.
+- **It is not multi-user.** There is no authentication. One person, one device,
+  one record.
+- **It does not give medical advice.** Both engines are constrained to
+  describing the record and deferring judgement to a clinician.

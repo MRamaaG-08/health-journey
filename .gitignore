@@ -54,8 +54,10 @@ backend/uploads/*
 frontend_backup/
 
 # --- Course material & recordings (not source code) ---------
+# The submission deck is kept in the repo; the course PDFs are not.
 *.pdf
 !docs/**/*.pdf
+!submission/*.pdf
 
 # --- Design tool exports ------------------------------------
 Health Journey Dashboard/

@@ -1,0 +1,31 @@
+PROBLEM
+
+Managing healthcare is a continuity problem, not a data problem. A single family's medical life is scattered by design: lab reports stay with the diagnostic chain, prescriptions stay on paper, scans sit in a hospital portal opened once and forgotten. Nothing holds the whole picture.
+
+The consequences are ordinary and costly. Follow-ups are missed because they lived in somebody's memory. A doctor asks what the last HbA1c was and the patient is scrolling a phone gallery in the consulting room. In most households one person silently carries this coordination for everyone, and when that person is busy or unwell, things fall through.
+
+Even when the records are found, they are unreadable. A lab report is thirty markers against reference ranges, and a seven-minute consultation is not enough time to explain it.
+
+WHY EXISTING OPTIONS FALL SHORT
+
+Hospital portals are accurate but siloed — one portal per provider, none of them connected, each showing a slice rather than a journey. Consumer health apps track what a wearable measures, not what a clinician wrote, and upload everything to a server. General AI chatbots are fluent and confident but have no access to the actual record, so they generalise or invent. In healthcare, a confidently wrong number is the failure mode that matters.
+
+Nothing owns the whole journey, explains it in plain language, and keeps it private.
+
+OUR SOLUTION
+
+Health Journey is a privacy-first AI health companion that runs on the user's own device. Uploading a report catalogues it and places it on a health timeline in one step. Medications, daily tasks, appointments, family profiles and an emergency card all live in one record that persists across restarts. IBM Bob, the assistant built into the dashboard, reads that record and answers in everyday language — which medications are still due, what to ask at Wednesday's appointment, which documents are on file.
+
+KEY DIFFERENTIATORS
+
+The assistant runs on a two-tier engine. When IBM watsonx credentials are configured it calls a Granite model; otherwise a grounded local engine computes answers directly from the record. Tick a medication, ask again, and the answer changes — because it is computed, not scripted. The application is fully functional with external AI removed.
+
+Most importantly, IBM Bob knows the limit of its own knowledge. Asked for a lab value it has not read, it says so and refuses to guess a number. That refusal is enforced in both engines. Every response declares which engine answered and how many records grounded it.
+
+The record never leaves the device. There is no account, no server and no tracking.
+
+EXPECTED IMPACT
+
+Health Journey is built for the family coordinator and for anyone managing a long-term condition measured in years of panels and slow trends — precisely the history a scattered record loses. It replaces remembering with a record, and replaces jargon with plain language, without asking anyone to hand their medical history to a server.
+
+The application organises health information. Clinical decisions remain with qualified medical professionals.

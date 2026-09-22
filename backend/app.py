@@ -642,8 +642,9 @@ def local_inference(user_prompt, db):
         if lab_events:
             reply += (" Your timeline links it to \"%s\" from %s." % (
                 lab_events[0].get('title', ''), lab_events[0].get('date', '')))
-        reply += (" I can summarise what's in it, but the clinical reading belongs to "
-                  "%s." % doctor_name)
+        reply += (" I can tell you what is on file, but I have not read inside "
+                  "these documents — for a value from one, open it or ask %s."
+                  % doctor_name)
         return reply
 
     # --- Questions for the doctor -----------------------------------------

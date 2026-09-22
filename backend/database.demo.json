@@ -1,7 +1,7 @@
 {
   "user": {
     "firstName": "Ramaa",
-    "fullName": "Ramaa Gayatri",
+    "fullName": "Ramaa Iyer",
     "score": 87
   },
   "vitals": {
@@ -148,28 +148,28 @@
     {
       "id": 1,
       "initials": "SI",
-      "name": "Krishna M",
+      "name": "Suresh Iyer",
       "meta": "Father · 64 · Hypertension",
       "status": "warning"
     },
     {
       "id": 2,
       "initials": "LI",
-      "name": "Lakshmi M",
+      "name": "Lakshmi Iyer",
       "meta": "Mother · 61 · All clear",
       "status": "success"
     },
     {
       "id": 3,
       "initials": "KV",
-      "name": "Karthik S",
+      "name": "Karthik Venkat",
       "meta": "Partner · 31 · All clear",
       "status": "success"
     },
     {
       "id": 4,
       "initials": "AV",
-      "name": "Aarav S",
+      "name": "Aarav Venkat",
       "meta": "Son · 4 · Vaccine due Sep 12",
       "status": "info"
     }
@@ -181,7 +181,7 @@
     "contacts": [
       {
         "id": 1,
-        "name": "Karthik S",
+        "name": "Karthik Venkat",
         "relation": "Partner · Primary contact",
         "type": "primary"
       },
